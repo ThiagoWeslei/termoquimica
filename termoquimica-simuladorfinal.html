@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Simulador de Termoquímica</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <style>
+    body {
+      font-family: Open Sans, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+    }
+    .formula-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+      gap: 10px;
+    }
+    .formula-box input {
+      width: 120px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .resultado-final {
+      font-weight: bold;
+      font-size: 16px;
+      color: #2c3e50;
+      margin-top: 10px;
+      text-align: center;
+    }
+    #reacaoTexto {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #34495e;
+      font-style: italic;
+    }
+    #mensagemErroValores {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Simulador de Termoquímica</h1>
+
+    <h2>Escolha a reação</h2>
+    <select id="reactionSelect">
+      <option value="">-- Selecione uma reação --</option>
+    </select>
+
+    <button onclick="gerarGrafico()">Gerar Gráfico</button>
+
+    <h2>Gráfico da Reação</h2>
+    <div id="reacaoTexto"></div>
+    <canvas id="grafico"></canvas>
+
+    <h2>Cálculo de ΔH</h2>
+    <p>Fórmula: ΔH = Σ H<sub>produtos</sub> - Σ H<sub>reagentes</sub></p>
+    <div class="formula-box">
+      <label>H<sub>produtos</sub> (kJ/mol)</label>
+      <input type="number" id="hProdutos" />
+      <span>-</span>
+      <label>H<sub>reagentes</sub> (kJ/mol)</label>
+      <input type="number" id="hReagentes" />
+      <button onclick="calcularDeltaH()">Calcular ΔH</button>
+    </div>
+    <div class="resultado-final" id="resultadoCalculo"></div>
+    <div id="mensagemErroValores"></div>
+
+    <h2>Defina a Reação</h2>
+    <select id="tipoReacao">
+      <option value="">-- Escolha o tipo de reação --</option>
+      <option value="exotermica">Exotérmica</option>
+      <option value="endotermica">Endotérmica</option>
+    </select>
+    <button onclick="verificarTipo()">Verificar</button>
+    <div class="resultado-final" id="mensagemTipo"></div>
+  </div>
+
+  <script>
+    const dadosReacoes = {
+      "CH4 + 2 O2 -> CO2 + 2 H2O": { inicial: -74.8, deltaH: -890 },
+      "2 H2 + O2 -> 2 H2O": { inicial: 0, deltaH: -572 },
+      "N2 + 3 H2 -> 2 NH3": { inicial: 0, deltaH: -92 },
+      "CaCO3 -> CaO + CO2": { inicial: -1206.9, deltaH: 178 },
+      "C + O2 -> CO2": { inicial: 0, deltaH: -393.5 },
+      "H2O (l) -> H2O (g)": { inicial: -285.8, deltaH: 44.0 },
+      "2 NH3 -> N2 + 3 H2": { inicial: -92, deltaH: 92 },
+      "H2O2 -> H2O + 1/2 O2": { inicial: -187.8, deltaH: -98 },
+      "Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O": { inicial: -1003, deltaH: -118 },
+      "N2 + O2 -> 2 NO": { inicial: 0, deltaH: 180.5 },
+      "C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O": { inicial: -1273, deltaH: -2800 },
+      "CO2 + H2O -> H2CO3": { inicial: -677, deltaH: 20.1 },
+    };
+
+    const nomesReacoes = {
+      "CH4 + 2 O2 -> CO2 + 2 H2O": "Combustão do Metano",
+      "2 H2 + O2 -> 2 H2O": "Combustão do Hidrogênio",
+      "N2 + 3 H2 -> 2 NH3": "Síntese da Amônia",
+      "CaCO3 -> CaO + CO2": "Decomposição do Carbonato de Cálcio",
+      "C + O2 -> CO2": "Combustão do Carbono",
+      "H2O (l) -> H2O (g)": "Vaporização da Água",
+      "2 NH3 -> N2 + 3 H2": "Decomposição da Amônia",
+      "H2O2 -> H2O + 1/2 O2": "Decomposição da Água Oxigenada",
+      "Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O": "Neutralização",
+      "N2 + O2 -> 2 NO": "Formação de Monóxido de Nitrogênio",
+      "C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O": "Combustão da Glicose",
+      "CO2 + H2O -> H2CO3": "Formação do Ácido Carbônico"
+    };
+
+    const selectReacoes = document.getElementById("reactionSelect");
+    for (const reacao in dadosReacoes) {
+      const nome = nomesReacoes[reacao] || reacao;
+      const opcao = document.createElement("option");
+      opcao.value = reacao;
+      opcao.textContent = nome;
+      selectReacoes.appendChild(opcao);
+    }
+
+    let ultimaReacao = null;
+
+    function gerarGrafico() {
+      const select = document.getElementById("reactionSelect");
+      const valor = select.value;
+      if (!valor) return alert("Selecione uma reação.");
+      ultimaReacao = valor;
+
+      const ctx = document.getElementById("grafico").getContext("2d");
+      const dados = dadosReacoes[valor];
+
+      const energiaInicial = dados.inicial;
+      const energiaFinal = dados.inicial + dados.deltaH;
+
+      const labels = ["", "", "", ""];
+      const data = [energiaInicial, energiaInicial, energiaFinal, energiaFinal];
+
+      document.getElementById("reacaoTexto").innerHTML = `
+        <strong>${valor.replace("->", "&rarr;")}</strong>
+      `;
+
+      if (window.graficoInstance) window.graficoInstance.destroy();
+
+      window.graficoInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Energia (kJ/mol)",
+            data: data,
+            fill: false,
+            borderColor: "#3498db",
+            backgroundColor: "#3498db",
+            tension: 0,
+            borderWidth: 2.5,
+            pointRadius: 0,
+          }],
+        },
+        options: {
+          animation: {
+            duration: 1000,
+            easing: "easeOutQuart",
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.parsed.y + " kJ/mol";
+                }
+              }
+            },
+            datalabels: {
+              display: function(context) {
+                return context.dataIndex === 0 || context.dataIndex === 3;
+              },
+              anchor: "end",
+             align: function(context) {
+  const valor = context.dataset.data[context.dataIndex];
+  return valor < 0 ? "bottom" : "right";
+},
+        formatter: (val) => val,
+            font: {
+             weight: "bold",
+              size: 14
+              },
+              color: "#2c3e50"
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              title: {
+                display: true,
+                text: "ΔH (Kj/mol)",
+                font: { size: 16 }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Caminho da reação",
+                font: { size: 16 }
+              },
+              ticks: {
+                callback: function(_, index) {
+                  if (index === 0) return "Reagentes";
+                  if (index === 3) return "Produtos";
+                  return "";
+                }
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels],
+      });
+    }
+
+    function calcularDeltaH() {
+      const hProd = parseFloat(document.getElementById("hProdutos").value);
+      const hReag = parseFloat(document.getElementById("hReagentes").value);
+      if (isNaN(hProd) || isNaN(hReag)) {
+        alert("Por favor, insira valores válidos.");
+        return;
+      }
+
+      const deltaH = hProd - hReag;
+      document.getElementById("resultadoCalculo").textContent = `ΔH = ${deltaH} kJ/mol`;
+
+      const dados = dadosReacoes[ultimaReacao];
+      const erro = Math.abs(deltaH - dados.deltaH);
+
+      document.getElementById("mensagemErroValores").textContent =
+        erro > 5 ? "Os valores inseridos estão incorretos com base no gráfico." : "";
+
+      document.getElementById("reacaoTexto").innerHTML = `
+        <strong>${ultimaReacao.replace("->", "&rarr;")}</strong>
+        <span style="margin-left: 10px; color: #555;">ΔH = ${deltaH} kJ/mol</span>
+      `;
+    }
+
+    function verificarTipo() {
+      const tipoSelecionado = document.getElementById("tipoReacao").value;
+      const deltaHText = document.getElementById("resultadoCalculo").textContent;
+      const deltaH = parseFloat(deltaHText.split("=")[1]);
+
+      let mensagem = "";
+      if ((deltaH < 0 && tipoSelecionado === "exotermica") ||
+          (deltaH > 0 && tipoSelecionado === "endotermica")) {
+        mensagem = `Correto. A reação é ${tipoSelecionado}, pois ΔH é ${
+          deltaH > 0 ? "positivo (absorve energia)" : "negativo (libera energia)"}.`;
+      } else {
+        mensagem = "Análise incorreta. Revise os dados.";
+      }
+
+      document.getElementById("mensagemTipo").textContent = mensagem;
+    }
+  </script>
+</body>
+</html>
