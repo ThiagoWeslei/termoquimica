@@ -132,6 +132,24 @@
       "N2 + O2 -> 2 NO": { inicial: 0, deltaH: 180.5 },
       "C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O": { inicial: -1273, deltaH: -2800 },
       "CO2 + H2O -> H2CO3": { inicial: -677, deltaH: 20.1 },
+      "2 CO + O2 -> 2 CO2": { inicial: -221, deltaH: -566 },
+      "2 SO2 + O2 -> 2 SO3": { inicial: -593, deltaH: -198 },
+      "H2 + Cl2 -> 2 HCl": { inicial: 0, deltaH: -184 },
+      "CaO + H2O -> Ca(OH)2": { inicial: -635, deltaH: -65 },
+      "NH3 + HCl -> NH4Cl": { inicial: -46, deltaH: -176 },
+      "NaOH + HCl -> NaCl + H2O": { inicial: -469, deltaH: -57 },
+      "KOH + HCl -> KCl + H2O": { inicial: -482, deltaH: -57 },
+      "2 NO + O2 -> 2 NO2": { inicial: 180.5, deltaH: -114 },
+      "N2O4 -> 2 NO2": { inicial: 9.2, deltaH: 57 },
+      "2 H2O2 -> 2 H2O + O2": { inicial: -375.6, deltaH: -196 },
+      "C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O": { inicial: -84, deltaH: -1560 },
+      "C3H8 + 5 O2 -> 3 CO2 + 4 H2O": { inicial: -104.7, deltaH: -2220 },
+      "CO + 1/2 O2 -> CO2": { inicial: -110.5, deltaH: -283 },
+      "2 Al + Fe2O3 -> Al2O3 + 2 Fe": { inicial: -824, deltaH: -851 },
+      "Na2CO3 + 2 HCl -> 2 NaCl + H2O + CO2": { inicial: -1131, deltaH: -28 },
+      "H2SO4 + 2 NaOH -> Na2SO4 + 2 H2O": { inicial: -909, deltaH: -114 },
+      "CaO + CO2 -> CaCO3": { inicial: -635, deltaH: -178 }
+      
     };
 
     const nomesReacoes = {
@@ -147,6 +165,23 @@
       "N2 + O2 -> 2 NO": "Formação de Monóxido de Nitrogênio",
       "C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O": "Combustão da Glicose",
       "CO2 + H2O -> H2CO3": "Formação do Ácido Carbônico"
+      "2 CO + O2 -> 2 CO2": "Oxidação do Monóxido de Carbono",
+      "2 SO2 + O2 -> 2 SO3": "Oxidação do Dióxido de Enxofre",
+      "H2 + Cl2 -> 2 HCl": "Síntese do Ácido Clorídrico",
+      "CaO + H2O -> Ca(OH)2": "Hidratação do Óxido de Cálcio",
+      "NH3 + HCl -> NH4Cl": "Formação do Cloreto de Amônio",
+      "NaOH + HCl -> NaCl + H2O": "Neutralização Ácido-Base",
+      "KOH + HCl -> KCl + H2O": "Neutralização Ácido-Base",
+      "2 NO + O2 -> 2 NO2": "Oxidação do Monóxido de Nitrogênio",
+      "N2O4 -> 2 NO2": "Dissociação do Tetróxido de Dinitrogênio",
+      "2 H2O2 -> 2 H2O + O2": "Decomposição Catalítica da Água Oxigenada",
+      "C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O": "Combustão do Etano",
+      "C3H8 + 5 O2 -> 3 CO2 + 4 H2O": "Combustão do Propano",
+      "CO + 1/2 O2 -> CO2": "Oxidação do Monóxido de Carbono",
+      "2 Al + Fe2O3 -> Al2O3 + 2 Fe": "Reação Termita",
+      "Na2CO3 + 2 HCl -> 2 NaCl + H2O + CO2": "Reação de Carbonato com Ácido",
+      "H2SO4 + 2 NaOH -> Na2SO4 + 2 H2O": "Neutralização do Ácido Sulfúrico",
+      "CaO + CO2 -> CaCO3": "Formação do Carbonato de Cálcio"
     };
 
     const selectReacoes = document.getElementById("reactionSelect");
