@@ -158,8 +158,8 @@
       selectReacoes.appendChild(opcao);
     }
 
-    let ultimaReacao = null; 
-    
+    let ultimaReacao = null;
+
     function gerarGrafico() {
       const select = document.getElementById("reactionSelect");
       const valor = select.value;
@@ -189,8 +189,8 @@
             label: "Energia (kJ/mol)",
             data: data,
             fill: false,
-            borderColor: "#3498db",
-            backgroundColor: "#3498db",
+            borderColor: "#e74c3c",
+            backgroundColor: "#e74c3c",
             tension: 0,
             borderWidth: 2.5,
             pointRadius: 0,
@@ -217,12 +217,12 @@
               anchor: "end",
              align: function(context) {
   const valor = context.dataset.data[context.dataIndex];
-  return valor < 0 ? "bottom" : "right";
+  return valor < 0 ? "bottom" : "top";
 },
-        formatter: (val) => val,
-            font: {
-             weight: "bold",
-              size: 14
+              formatter: (val) => val + " kJ/mol",
+              font: {
+                weight: "bold",
+                size: 12
               },
               color: "#2c3e50"
             }
@@ -232,7 +232,7 @@
               beginAtZero: false,
               title: {
                 display: true,
-                text: "ΔH (Kj/mol)",
+                text: "ΔH",
                 font: { size: 16 }
               }
             },
@@ -298,8 +298,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
