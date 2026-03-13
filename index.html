@@ -121,57 +121,57 @@
   <script>
     const dadosReacoes = {
 
-"CH4 + 2 O2 -> CO2 + 2 H2O":{ inicial:-74.8, deltaH:-890 };
-"2 H2 + O2 -> 2 H2O":{ inicial:0, deltaH:-572 };
-"N2 + 3 H2 -> 2 NH3":{ inicial:0, deltaH:-92 };
-"CaCO3 -> CaO + CO2":{ inicial:-1206.9, deltaH:178 };
-"C + O2 -> CO2":{ inicial:0, deltaH:-393.5 };
-"H2O (l) -> H2O (g)":{ inicial:-285.8, deltaH:44 };
-"2 NH3 -> N2 + 3 H2":{ inicial:-92, deltaH:92 };
-"H2O2 -> H2O + 1/2 O2":{ inicial:-187.8, deltaH:-98 };
-"Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O":{ inicial:-1003, deltaH:-118 };
-"N2 + O2 -> 2 NO":{ inicial:0, deltaH:180.5 };
-"C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O":{ inicial:-1273, deltaH:-2800 };
-"CO2 + H2O -> H2CO3":{ inicial:-677, deltaH:20.1 };
-"CO + 1/2 O2 -> CO2":{ inicial:-110.5, deltaH:-283 };
-"2 CO + O2 -> 2 CO2":{ inicial:-221, deltaH:-566 };
-"H2 + Cl2 -> 2 HCl":{ inicial:0, deltaH:-184.6 };
-"CaO + H2O -> Ca(OH)2":{ inicial:-635.5, deltaH:-65.2 };
-"2 SO2 + O2 -> 2 SO3":{ inicial:-593.6, deltaH:-198 };
-"NH3 + HCl -> NH4Cl":{ inicial:-46.1, deltaH:-176 };
-"NaOH + HCl -> NaCl + H2O":{ inicial:-470, deltaH:-57.3 };
-"CaO + CO2 -> CaCO3":{ inicial:-635.5, deltaH:-178 };
-"C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O":{ inicial:-84.7, deltaH:-1560 };
-"C3H8 + 5 O2 -> 3 CO2 + 4 H2O":{ inicial:-104.7, deltaH:-2220 };
-"C4H10 + 13/2 O2 -> 4 CO2 + 5 H2O":{ inicial:-126, deltaH:-2877 };
+"CH4 + 2 O2 -> CO2 + 2 H2O":{ inicial:-74.8, deltaH:-890 },
+"2 H2 + O2 -> 2 H2O":{ inicial:0, deltaH:-572 },
+"N2 + 3 H2 -> 2 NH3":{ inicial:0, deltaH:-92 },
+"CaCO3 -> CaO + CO2":{ inicial:-1206.9, deltaH:178 },
+"C + O2 -> CO2":{ inicial:0, deltaH:-393.5 },
+"H2O (l) -> H2O (g)":{ inicial:-285.8, deltaH:44 },
+"2 NH3 -> N2 + 3 H2":{ inicial:-92, deltaH:92 },
+"H2O2 -> H2O + 1/2 O2":{ inicial:-187.8, deltaH:-98 },
+"Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O":{ inicial:-1003, deltaH:-118 },
+"N2 + O2 -> 2 NO":{ inicial:0, deltaH:180.5 },
+"C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O":{ inicial:-1273, deltaH:-2800 },
+"CO2 + H2O -> H2CO3":{ inicial:-677, deltaH:20.1 },
+"CO + 1/2 O2 -> CO2":{ inicial:-110.5, deltaH:-283 },
+"2 CO + O2 -> 2 CO2":{ inicial:-221, deltaH:-566 },
+"H2 + Cl2 -> 2 HCl":{ inicial:0, deltaH:-184.6 },
+"CaO + H2O -> Ca(OH)2":{ inicial:-635.5, deltaH:-65.2 },
+"2 SO2 + O2 -> 2 SO3":{ inicial:-593.6, deltaH:-198 },
+"NH3 + HCl -> NH4Cl":{ inicial:-46.1, deltaH:-176 },
+"NaOH + HCl -> NaCl + H2O":{ inicial:-470, deltaH:-57.3 },
+"CaO + CO2 -> CaCO3":{ inicial:-635.5, deltaH:-178 },
+"C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O":{ inicial:-84.7, deltaH:-1560 },
+"C3H8 + 5 O2 -> 3 CO2 + 4 H2O":{ inicial:-104.7, deltaH:-2220 },
+"C4H10 + 13/2 O2 -> 4 CO2 + 5 H2O":{ inicial:-126, deltaH:-2877 },
 
 };
 
     const reacoes = {
 
-"CH4 + 2 O2 -> CO2 + 2 H2O":"Combustão do Metano";
-"2 H2 + O2 -> 2 H2O":"Combustão do Hidrogênio";
-"N2 + 3 H2 -> 2 NH3":"Síntese da Amônia";
-"CaCO3 -> CaO + CO2":"Decomposição do Carbonato de Cálcio";
-"C + O2 -> CO2":"Combustão do Carbono";
-"H2O (l) -> H2O (g)":"Vaporização da Água";
-"2 NH3 -> N2 + 3 H2":"Decomposição da Amônia";
-"H2O2 -> H2O + 1/2 O2":"Decomposição da Água Oxigenada";
-"Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O":"Neutralização";
-"N2 + O2 -> 2 NO":"Formação de Monóxido de Nitrogênio";
-"C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O":"Combustão da Glicose";
-"CO2 + H2O -> H2CO3":"Formação do Ácido Carbônico";
-"CO + 1/2 O2 -> CO2":"Oxidação do Monóxido de Carbono";
-"2 CO + O2 -> 2 CO2":"Oxidação do Monóxido de Carbono";
-"H2 + Cl2 -> 2 HCl":"Síntese do Ácido Clorídrico";
-"CaO + H2O -> Ca(OH)2":"Hidratação do Óxido de Cálcio";
-"2 SO2 + O2 -> 2 SO3":"Oxidação do Dióxido de Enxofre";
-"NH3 + HCl -> NH4Cl":"Formação do Cloreto de Amônio";
-"NaOH + HCl -> NaCl + H2O":"Neutralização Ácido-Base";
-"CaO + CO2 -> CaCO3":"Formação do Carbonato de Cálcio";
-"C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O":"Combustão do Etano";
-"C3H8 + 5 O2 -> 3 CO2 + 4 H2O":"Combustão do Propano";
-"C4H10 + 13/2 O2 -> 4 CO2 + 5 H2O":"Combustão do Butano";
+"CH4 + 2 O2 -> CO2 + 2 H2O":"Combustão do Metano",
+"2 H2 + O2 -> 2 H2O":"Combustão do Hidrogênio",
+"N2 + 3 H2 -> 2 NH3":"Síntese da Amônia",
+"CaCO3 -> CaO + CO2":"Decomposição do Carbonato de Cálcio",
+" + O2 -> CO2":"Combustão do Carbono",
+"H2O (l) -> H2O (g)":"Vaporização da Água",
+"2 NH3 -> N2 + 3 H2":"Decomposição da Amônia",
+"H2O2 -> H2O + 1/2 O2":"Decomposição da Água Oxigenada",
+"Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O":"Neutralização",
+"N2 + O2 -> 2 NO":"Formação de Monóxido de Nitrogênio",
+"C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O":"Combustão da Glicose",
+"CO2 + H2O -> H2CO3":"Formação do Ácido Carbônico",
+"CO + 1/2 O2 -> CO2":"Oxidação do Monóxido de Carbono",
+"2 CO + O2 -> 2 CO2":"Oxidação do Monóxido de Carbono",
+"H2 + Cl2 -> 2 HCl":"Síntese do Ácido Clorídrico",
+"CaO + H2O -> Ca(OH)2":"Hidratação do Óxido de Cálcio",
+"2 SO2 + O2 -> 2 SO3":"Oxidação do Dióxido de Enxofre",
+"NH3 + HCl -> NH4Cl":"Formação do Cloreto de Amônio",
+"NaOH + HCl -> NaCl + H2O":"Neutralização Ácido-Base",
+"CaO + CO2 -> CaCO3":"Formação do Carbonato de Cálcio",
+"C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O":"Combustão do Etano",
+"C3H8 + 5 O2 -> 3 CO2 + 4 H2O":"Combustão do Propano",
+"C4H10 + 13/2 O2 -> 4 CO2 + 5 H2O":"Combustão do Butano",
 
 };
 
