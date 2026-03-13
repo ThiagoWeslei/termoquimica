@@ -141,10 +141,8 @@
       "KOH + HCl -> KCl + H2O": { inicial: -482, deltaH: -57 },
       "2 NO + O2 -> 2 NO2": { inicial: 180.5, deltaH: -114 },
       "N2O4 -> 2 NO2": { inicial: 9.2, deltaH: 57 },
-      "2 H2O2 -> 2 H2O + O2": { inicial: -375.6, deltaH: -196 },
       "C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O": { inicial: -84, deltaH: -1560 },
       "C3H8 + 5 O2 -> 3 CO2 + 4 H2O": { inicial: -104.7, deltaH: -2220 },
-      "CO + 1/2 O2 -> CO2": { inicial: -110.5, deltaH: -283 },
       "2 Al + Fe2O3 -> Al2O3 + 2 Fe": { inicial: -824, deltaH: -851 },
       "Na2CO3 + 2 HCl -> 2 NaCl + H2O + CO2": { inicial: -1131, deltaH: -28 },
       "H2SO4 + 2 NaOH -> Na2SO4 + 2 H2O": { inicial: -909, deltaH: -114 },
@@ -186,7 +184,7 @@
 
     const selectReacoes = document.getElementById("reactionSelect");
     for (const reacao in dadosReacoes) {
-      const nome = nomesReacoes[reacao] || reacao;
+      const nome = nomesReacoes[reacao] ?? reacao;
       const opcao = document.createElement("option");
       opcao.value = reacao;
       opcao.textContent = nome;
