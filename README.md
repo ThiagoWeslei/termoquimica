@@ -43,32 +43,20 @@ O projeto é totalmente autocontido em um único arquivo chamado `tabela.html`, 
 
 ---
 
-## 🎨 Identidade Visual e Variáveis Semânticas
+## 🎨 Paleta de Cores e Identidade Visual
 
-A interface adota variáveis de cores bem definidas para categorizar os elementos de forma intuitiva através de folhas de estilo aplicadas em tabela.html:
+A interface adota variáveis de cores bem definidas e ícones representativos para categorizar os estados físicos dos elementos químicos a 25 °C e 1 atm de forma intuitiva:
 
-  --bg-deep:      #0d0d12; /* Fundo principal escuro */
-  --accent:       #00e5ff; /* Ciano Neon para destaques e interações */
-  --c-solid:      #4a9eff; /* Sólidos */
-  --c-liquid:     #ff5252; /* Líquidos */
-  --c-gas:        #69f0ae; /* Gasosos */
-  --c-unknown:    #777777; /* Sintéticos/Desconhecidos */
+| Estado Físico | Ícone | Amostra de Cor | Variável CSS | Descrição |
+| :--- | :---: | :---: | :--- | :--- |
+| **Sólido** | 🧊 | `🔵 #4a9eff` | `--c-solid` | Elementos em estado sólido |
+| **Líquido** | 💧 | `🔴 #ff5252` | `--c-liquid` | Elementos em estado líquido |
+| **Gasoso** | 💨 | `🟢 #69f0ae` | `--c-gas` | Elementos em estado gasoso |
+| **Desconhecido** | 🌀 | `⚪ #777777` | `--c-unknown` | Elementos sintéticos / propriedade desconhecida |
 
----
-
-## 📄 Como Executar o Projeto Localmente
-
-Como o projeto utiliza apenas tecnologias nativas da web, nenhum gerenciador de pacotes é necessário.
-
-1. Clone este repositório:
-   git clone [https://github.com/thiagoweslei/tabelaperiodica.git](https://github.com/thiagoweslei/tabelaperiodica.git)
-
-2. Navegue até o diretório do projeto:
-   cd tabelaperiodica
-
-3. Abra o arquivo `tabela.html` diretamente em qualquer navegador web moderno.
-
----
+### 🕶️ Cores de Interface:
+* **Fundo Principal:** `#0d0d12` (`--bg-deep`) — Estética Dark Mode profunda.
+* **Destaques e Interações:** `#00e5ff` (`--accent`) — Tom Ciano Neon para efeitos de hover e seleções ativas.
 
 ## 🧑‍💻 Autor
 
