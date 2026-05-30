@@ -1,51 +1,76 @@
 # ⚛️ Tabela Periódica Interativa
 
-Uma aplicação web moderna, responsiva e altamente interativa para a exploração dos elementos químicos. Desenvolvida com uma estética futurista (*dark mode* com detalhes em *neon*), a aplicação foi projetada tanto para o suporte ao estudo acadêmico quanto para a consulta rápida de propriedades químicas essenciais.
+Uma aplicação web moderna, responsiva e de alta performance para a exploração dos elementos químicos. Desenvolvida com uma estética futurista (*dark mode* com detalhes em *neon*), a aplicação foi projetada para atuar como uma ferramenta didática tanto na introdução à química quanto no suporte ao estudo acadêmico avançado.
 
 🔗 **Acesse a aplicação em tempo real:** [thiagoweslei.github.io/tabelaperiodica/](https://thiagoweslei.github.io/tabelaperiodica/)
 
 ---
 
-## 🚀 Recursos Principais
+## 🚀 Recursos e Funcionalidades
 
-- **Visualização Avançada da Distribuição Eletrônica:** Exibe a configuração eletrônica no estado fundamental (notação de gases nobres) e o detalhamento completo por níveis de energia (K, L, M, N, O, P, Q) baseado no Diagrama de Pauling.
-- **Conexão Dinâmica com a Química Orgânica e Inorgânica:** As curiosidades e descrições dos elementos destacam suas aplicações práticas reais, como reagentes de síntese orgânica (ex: reagentes de Grignard, catalisadores de Paládio e Rutênio) e compostos inorgânicos industriais e biológicos.
-- **Filtros Inteligentes por Categoria e Estado Físico:** Clique nas legendas para isolar instantaneamente grupos específicos (Metais de Transição, Lantanídeos, Halogênios, etc.) ou estados da matéria (Sólido, Líquido, Gasoso, Desconhecido a 25 °C e 1 atm).
-- **Painel Lateral Informativo (*Sidebar*):** Sistema de clique que expande informações aprofundadas sobre o elemento selecionado, incluindo:
-  - Símbolo, número atômico e massa atômica precisa (IUPAC).
-  - Contagem detalhada de subpartículas (Prótons, Nêutrons e Elétrons).
-  - Métodos de obtenção na natureza ou em laboratório.
-- **Séries Expansíveis (Lantanídeos e Actinídeos):** Botões integrados na linha 3 do grupo que expandem dinamicamente as séries de transição interna diretamente na estrutura da tabela, otimizando o espaço de tela.
+O projeto foi estruturado no arquivo principal `tabela.html` e engloba os seguintes recursos:
+
+* **Visualização Avançada da Distribuição Eletrônica:** Exibe a configuração eletrônica no estado fundamental (notação de gases nobres) e o detalhamento completo por níveis de energia (K, L, M, N, O, P, Q) baseado no Diagrama de Pauling.
+* **Conexão com a Química Orgânica e Inorgânica:** As curiosidades e descrições dos elementos destacam suas aplicações práticas reais, como reagentes de síntese orgânica (ex: reagentes de Grignard, catalisadores de Paládio, Rutênio e cromo para oxidações) e compostos inorgânicos industriais.
+* **Filtros Inteligentes por Categoria e Estado Físico:** Permite isolar instantaneamente grupos específicos (Metais de Transição, Lantanídeos, Halogênios, etc.) ou estados da matéria (Sólido, Líquido, Gasoso ou Desconhecido a 25 °C e 1 atm) ao interagir com a legenda.
+* **Painel Lateral Informativo (Sidebar):** Sistema de clique que expande informações aprofundadas sobre o elemento selecionado, incluindo:
+  * Símbolo, número atômico e massa atômica precisa.
+  * Contagem detalhada de subpartículas (Prótons, Nêutrons e Elétrons) calculadas dinamicamente.
+  * Métodos de obtenção na natureza ou em laboratório e curiosidades históricas.
+* **Séries Expansíveis (Lantanídeos e Actinídeos):** Botões integrados na estrutura principal que expandem e recolhem dinamicamente as séries de transição interna, otimizando o layout da tela.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-O projeto foi construído utilizando práticas modernas de desenvolvimento web focado em performance e estilização limpa, sem a necessidade de dependências ou frameworks pesados:
+A aplicação foi construída utilizando práticas modernas de desenvolvimento web focado em performance nativa (Vanilla), sem a necessidade de dependências ou frameworks pesados:
 
-- **HTML5:** Estruturação semântica e layouts robustos.
-- **CSS3 (Grid & Flexbox):** Uso intensivo de *CSS Grid* para renderizar com precisão matemática a disposição 18x7 da tabela periódica, além de *CSS Variables* para fácil manutenção da paleta de cores futurista.
-- **JavaScript (ES6+ Vanilla):** Manipulação eficiente do DOM, algoritmos para cálculo automatizado de nêutrons e lógica de distribuição eletrônica em tempo de execução.
-- **Google Fonts:** Integração das fontes de alta tecnologia *Rajdhani* e *Share Tech Mono*.
-
----
-
-## 📐 Estrutura do Layout
-
-A tabela utiliza coordenadas de grade estritas para posicionar elementos e componentes informativos integrados:
-- **Colunas 4 a 6 / Linhas 2 a 5:** Espaço central otimizado para o *Card de Demonstração (Legenda de Orientação)*.
-- **Colunas 7 a 14 / Linhas 2 a 4:** Painel unificado de filtros por Categorias e Estados Físicos.
+* **HTML5:** Estruturação semântica de todos os blocos informativos.
+* **CSS3 (Grid & Flexbox):** Uso intensivo de CSS Grid para renderizar com precisão matemática a disposição 18x7 da tabela periódica, além de variáveis CSS para controle da paleta de cores futurista.
+* **JavaScript (ES6+):** Lógica para manipulação eficiente do DOM, renderização dinâmica dos elementos a partir de objetos estruturados, algoritmos de distribuição eletrônica e controle dos estados dos filtros.
+* **Google Fonts:** Integração das fontes de estilo tecnológico Rajdhani e Share Tech Mono.
 
 ---
 
-## 🎨 Paleta de Cores e Identidade Visual
+## 📐 Estrutura do Arquivo tabela.html
 
-A interface adota variáveis de cores semânticas bem definidas para categorizar os elementos de forma intuitiva:
+O projeto é totalmente autocontido em um único arquivo chamado `tabela.html`, o qual organiza os componentes da seguinte forma:
 
-```css
---bg-deep:      #0d0d12; /* Fundo principal escuro */
---accent:       #00e5ff; /* Ciano Neon para destaques e interações */
---c-solid:      #4a9eff; /* Sólidos (🧊) */
---c-liquid:     #ff5252; /* Líquidos (💧) */
---c-gas:        #69f0ae; /* Gasosos (💨) */
---c-unknown:    #777777; /* Sintéticos/Desconhecidos (🌀) */
+* **Estrutura de Grade:** Utiliza coordenadas estritas de linhas e colunas para posicionar os elementos base, deixando as colunas centrais livres para as legendas de orientação.
+* **Espaço Central Otimizado:** 
+  * **Colunas 4 a 6 / Linhas 2 a 5:** Abriga o Card de Demonstração (Legenda explicativa do elemento).
+  * **Colunas 7 a 13 / Linhas 2 a 4:** Painel unificado de filtros por Categorias e Estados Físicos.
+
+---
+
+## 🎨 Identidade Visual e Variáveis Semânticas
+
+A interface adota variáveis de cores bem definidas para categorizar os elementos de forma intuitiva através de folhas de estilo aplicadas em tabela.html:
+
+  --bg-deep:      #0d0d12; /* Fundo principal escuro */
+  --accent:       #00e5ff; /* Ciano Neon para destaques e interações */
+  --c-solid:      #4a9eff; /* Sólidos */
+  --c-liquid:     #ff5252; /* Líquidos */
+  --c-gas:        #69f0ae; /* Gasosos */
+  --c-unknown:    #777777; /* Sintéticos/Desconhecidos */
+
+---
+
+## 📄 Como Executar o Projeto Localmente
+
+Como o projeto utiliza apenas tecnologias nativas da web, nenhum gerenciador de pacotes é necessário.
+
+1. Clone este repositório:
+   git clone [https://github.com/thiagoweslei/tabelaperiodica.git](https://github.com/thiagoweslei/tabelaperiodica.git)
+
+2. Navegue até o diretório do projeto:
+   cd tabelaperiodica
+
+3. Abra o arquivo `tabela.html` diretamente em qualquer navegador web moderno.
+
+---
+
+## 🧑‍💻 Autor
+
+Desenvolvido por **Thiago Weslei**  
+Sinta-se à vontade para contribuir com o projeto enviando Pull Requests ou sugerindo melhorias na seção de Issues!
