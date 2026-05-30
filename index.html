@@ -1,333 +1,1119 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Simulador de Termoquímica</title>
+  <meta name="description" content="Simulador interativo de reações termoquímicas com dados IUPAC/NIST, gráficos de entalpia e cálculo de ΔH." />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
   <style>
+    /* ── Paleta: Modo Escuro (padrão) ── */
+    :root,
+    [data-theme="dark"] {
+      --bg-deep:    #0d0d12;
+      --bg-panel:   #13131a;
+      --bg-card:    #1a1a24;
+      --bg-hover:   #22223a;
+      --border:     #2a2a3d;
+      --accent:     #ffffff;
+      --text-main:  #ffffff;
+      --text-dim:   #7a7a9a;
+      --c-solid:    #4a9eff;
+      --c-liquid:   #ff5252;
+      --c-gas:      #69f0ae;
+      --c-unknown:  #777;
+      --c-transition: #f39c12;
+      --c-lanthanide: #9b59b6;
+
+      /* aliases internos */
+      --bg:         var(--bg-deep);
+      --surface:    var(--bg-panel);
+      --surface2:   var(--bg-card);
+      --surface3:   var(--bg-hover);
+      --text-primary:   var(--text-main);
+      --text-secondary: var(--text-dim);
+      --focus-ring: var(--c-solid);
+      --shadow-lg:  0 6px 32px rgba(0,0,0,.5);
+      --shadow:     0 2px 12px rgba(0,0,0,.35);
+
+      /* semântica de feedback */
+      --color-success:     var(--c-gas);
+      --color-success-bg:  rgba(105,240,174,.08);
+      --color-error:       var(--c-liquid);
+      --color-error-bg:    rgba(255,82,82,.08);
+      --color-info:        var(--c-solid);
+      --color-info-bg:     rgba(74,158,255,.08);
+      --color-exo:         var(--c-liquid);
+      --color-endo:        var(--c-solid);
+    }
+
+    /* ── Modo Claro ── */
+    [data-theme="light"] {
+      --bg-deep:   #f0f0f5;
+      --bg-panel:  #e4e4ee;
+      --bg-card:   #ffffff;
+      --bg-hover:  #dde0f0;
+      --border:    #c0c0d8;
+      --accent:    #0077aa;
+      --text-main: #111122;
+      --text-dim:  #555570;
+      --c-solid:    #0077aa;
+      --c-liquid:   #cc2200;
+      --c-gas:      #1a7a45;
+      --c-unknown:  #888;
+      --c-transition: #b07000;
+      --c-lanthanide: #6a3a9a;
+
+      --bg:         var(--bg-deep);
+      --surface:    var(--bg-card);
+      --surface2:   var(--bg-panel);
+      --surface3:   var(--bg-hover);
+      --text-primary:   var(--text-main);
+      --text-secondary: var(--text-dim);
+      --focus-ring: var(--c-solid);
+      --shadow-lg:  0 6px 28px rgba(0,0,0,.12);
+      --shadow:     0 2px 10px rgba(0,0,0,.08);
+
+      --color-success:     #1a7a45;
+      --color-success-bg:  #edf7f1;
+      --color-error:       #cc2200;
+      --color-error-bg:    #fdf1f0;
+      --color-info:        #0077aa;
+      --color-info-bg:     #eef6fb;
+      --color-exo:         #cc2200;
+      --color-endo:        #0077aa;
+    }
+
+    /* ── Alto Contraste ── */
+    [data-theme="high-contrast"] {
+      --bg-deep:   #000000;
+      --bg-panel:  #000000;
+      --bg-card:   #111111;
+      --bg-hover:  #222222;
+      --border:    #ffffff;
+      --accent:    #ffff00;
+      --text-main: #ffffff;
+      --text-dim:  #dddddd;
+      --c-solid:    #00cfff;
+      --c-liquid:   #ff6060;
+      --c-gas:      #00ff88;
+      --c-unknown:  #aaa;
+      --c-transition: #ffcc00;
+      --c-lanthanide: #dd88ff;
+
+      --bg:         var(--bg-deep);
+      --surface:    var(--bg-panel);
+      --surface2:   var(--bg-card);
+      --surface3:   var(--bg-hover);
+      --text-primary:   var(--text-main);
+      --text-secondary: var(--text-dim);
+      --focus-ring: var(--accent);
+      --shadow-lg:  none;
+      --shadow:     none;
+
+      --color-success:     #00ff88;
+      --color-success-bg:  #001a0d;
+      --color-error:       #ff6060;
+      --color-error-bg:    #1a0000;
+      --color-info:        #00cfff;
+      --color-info-bg:     #001a22;
+      --color-exo:         #ff6060;
+      --color-endo:        #00cfff;
+    }
+
+    /* ── System preference: reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --font-mono:    'DM Mono', monospace;
+      --radius:       10px;
+      --radius-lg:    16px;
+      --transition:   220ms ease;
+    }
+
     body {
-      font-family: Open Sans, sans-serif;
-      padding: 20px;
-      background: #f4f4f4;
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 24px 16px 60px;
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
     }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 900px;
-      margin: auto;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+
+    /* ── Skip link ── */
+    .skip-link {
+      position: absolute;
+      top: -999px; left: 12px;
+      background: var(--accent);
+      color: var(--bg-deep);
+      padding: 10px 18px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      z-index: 9999;
+      text-decoration: none;
+      font-family: var(--font-body);
     }
-    h1, h2 {
-      color: #2c3e50;
+    .skip-link:focus { top: 12px; outline: 3px solid var(--text-main); outline-offset: 2px; }
+
+    /* ── Focus ── */
+    :focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 3px;
+      border-radius: 4px;
     }
-    select, input, button {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 16px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background-color: #3498db;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    canvas {
-      max-width: 100%;
-      height: auto;
-      margin-top: 20px;
-    }
-    .formula-box {
+
+    /* ── A11y Toolbar ── */
+    .a11y-toolbar {
+      max-width: 860px;
+      margin: 0 auto 18px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-top: 30px;
-      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
     }
-    .formula-box input {
-      width: 120px;
-      font-size: 14px;
+    .a11y-btn {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface2);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .a11y-btn:hover { background: var(--surface3); border-color: var(--text-secondary); color: var(--text-primary); }
+    .a11y-btn.active { background: var(--accent); color: var(--bg-deep); border-color: var(--accent); font-weight: 700; }
+    .font-size-display {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      padding: 4px 2px;
+      min-width: 36px;
       text-align: center;
     }
-    .resultado-final {
-      font-weight: bold;
-      font-size: 16px;
-      color: #2c3e50;
-      margin-top: 10px;
+
+    /* ── Theme switcher group ── */
+    .theme-group {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .theme-group .a11y-btn {
+      border: none;
+      border-radius: 0;
+      padding: 5px 12px;
+    }
+    .theme-group .a11y-btn:first-child { border-radius: 999px 0 0 999px; }
+    .theme-group .a11y-btn:last-child  { border-radius: 0 999px 999px 0; }
+
+    /* ── Container ── */
+    .container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      max-width: 860px;
+      margin: 0 auto;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 36px 40px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(74,158,255,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-solid);
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1.15;
+    }
+    .header p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      max-width: 560px;
+    }
+
+    /* ── Sections ── */
+    .section {
+      padding: 30px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 400;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px; height: 26px;
+      background: var(--c-solid);
+      color: var(--bg-deep);
+      border-radius: 50%;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* ── Labels ── */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    /* ── Inputs / Select ── */
+    select, input[type="number"] {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface2);
+      color: var(--text-primary);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237a7a9a' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 13px center;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+    select:hover, input[type="number"]:hover { border-color: var(--text-secondary); }
+    select:focus, input[type="number"]:focus {
+      border-color: var(--c-solid);
+      box-shadow: 0 0 0 3px rgba(74,158,255,.18);
+      outline: none;
+    }
+    /* dark-mode option text */
+    option { background: var(--bg-card); color: var(--text-main); }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 22px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition), transform 80ms ease, box-shadow var(--transition);
+      letter-spacing: .02em;
+    }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-primary {
+      background: var(--c-solid);
+      color: var(--bg-deep);
+      box-shadow: 0 2px 10px rgba(74,158,255,.25);
+    }
+    .btn-primary:hover { filter: brightness(1.12); box-shadow: 0 4px 16px rgba(74,158,255,.35); }
+
+    .btn-secondary {
+      background: var(--surface3);
+      color: var(--text-primary);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--bg-hover); border-color: var(--text-secondary); }
+
+    .btn-full { width: 100%; margin-top: 12px; }
+
+    /* ── Category chips ── */
+    .category-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+    .chip {
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface2);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .chip:hover { border-color: var(--c-solid); color: var(--c-solid); }
+    .chip.active { background: var(--c-solid); color: var(--bg-deep); border-color: var(--c-solid); }
+
+    /* ── Reaction meta ── */
+    .reaction-meta {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--c-solid);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .reaction-meta.visible { display: flex; }
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-secondary); }
+    .meta-value { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .meta-value.exo { color: var(--color-exo); }
+    .meta-value.endo { color: var(--color-endo); }
+
+    /* ── Chart ── */
+    .chart-wrapper {
+      position: relative;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 16px;
+    }
+    .chart-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
       text-align: center;
     }
     #reacaoTexto {
       text-align: center;
-      font-size: 18px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-secondary);
       margin-bottom: 10px;
-      color: #34495e;
-      font-style: italic;
+      padding: 8px 14px;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: none;
     }
-    #mensagemErroValores {
-      color: red;
-      font-weight: bold;
+    #reacaoTexto.visible { display: block; }
+    canvas { max-width: 100%; display: block; }
+    .chart-description {
+      font-size: 12px;
+      color: var(--text-secondary);
       margin-top: 10px;
       text-align: center;
+      font-style: italic;
+    }
+
+    /* ── ΔH form ── */
+    .dh-grid {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: end;
+      margin-top: 4px;
+    }
+    .dh-operator {
+      font-size: 22px;
+      font-family: var(--font-display);
+      color: var(--text-secondary);
+      text-align: center;
+      padding-bottom: 10px;
+    }
+    .formula-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      font-family: var(--font-mono);
+      padding: 8px 12px;
+      background: var(--surface2);
+      border-radius: 6px;
+      border-left: 3px solid var(--c-solid);
+    }
+
+    /* ── Result boxes ── */
+    .result-box {
+      padding: 13px 16px;
+      border-radius: var(--radius);
+      margin-top: 12px;
+      border: 1.5px solid transparent;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .result-box.visible { display: flex; }
+    .result-box.success { background: var(--color-success-bg); border-color: var(--color-success); color: var(--color-success); }
+    .result-box.error   { background: var(--color-error-bg);   border-color: var(--color-error);   color: var(--color-error); }
+    .result-box.info    { background: var(--color-info-bg);    border-color: var(--color-info);    color: var(--text-primary); }
+    .result-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .result-text { flex: 1; line-height: 1.5; }
+    .result-text strong { font-weight: 700; }
+
+    /* ── Verify grid ── */
+    .verify-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: end;
+    }
+
+    /* ── Source note ── */
+    .source-note {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 14px;
+      padding: 8px 12px;
+      border-left: 3px solid var(--border);
+      background: var(--surface2);
+      border-radius: 0 6px 6px 0;
+      line-height: 1.6;
+    }
+
+    /* ── Live region (SR only) ── */
+    #liveRegion {
+      position: absolute;
+      width: 1px; height: 1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+    }
+
+    /* ── Help text ── */
+    .help-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .section { padding: 22px 18px; }
+      .header  { padding: 26px 18px 20px; }
+      .dh-grid { grid-template-columns: 1fr; }
+      .dh-operator { display: none; }
+      .verify-grid { grid-template-columns: 1fr; }
+      .a11y-toolbar { justify-content: flex-start; }
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>Simulador de Termoquímica</h1>
+  <a href="#main-content" class="skip-link">Ir para o conteúdo principal</a>
+  <div id="liveRegion" aria-live="polite" aria-atomic="true" role="status"></div>
 
-    <h2>Escolha a reação</h2>
-    <select id="reactionSelect">
-      <option value="">-- Selecione uma reação --</option>
-    </select>
+  <!-- Accessibility / Theme toolbar -->
+  <div class="a11y-toolbar" role="toolbar" aria-label="Controles de tema e acessibilidade">
 
-    <button onclick="gerarGrafico()">Gerar Gráfico</button>
+    <!-- Font size -->
+    <button class="a11y-btn" id="btnFontDecrease" aria-label="Diminuir tamanho da fonte">A−</button>
+    <span class="font-size-display" aria-live="polite" id="fontSizeLabel">100%</span>
+    <button class="a11y-btn" id="btnFontIncrease" aria-label="Aumentar tamanho da fonte">A+</button>
 
-    <h2>Gráfico da Reação</h2>
-    <div id="reacaoTexto"></div>
-    <canvas id="grafico"></canvas>
-
-    <h2>Cálculo de ΔH</h2>
-    <p>Fórmula: ΔH = Σ H<sub>produtos</sub> - Σ H<sub>reagentes</sub></p>
-    <div class="formula-box">
-      <label>H<sub>produtos</sub> (kJ/mol)</label>
-      <input type="number" id="hProdutos" />
-      <span>-</span>
-      <label>H<sub>reagentes</sub> (kJ/mol)</label>
-      <input type="number" id="hReagentes" />
-      <button onclick="calcularDeltaH()">Calcular ΔH</button>
+    <!-- Theme switcher -->
+    <div class="theme-group" role="group" aria-label="Escolher tema">
+      <button class="a11y-btn active" data-theme-btn="dark"         aria-pressed="true"  title="Tema escuro">🌙 Escuro</button>
+      <button class="a11y-btn"        data-theme-btn="light"        aria-pressed="false" title="Tema claro">☀️ Claro</button>
+      <button class="a11y-btn"        data-theme-btn="high-contrast" aria-pressed="false" title="Alto contraste">◑ Contraste</button>
     </div>
-    <div class="resultado-final" id="resultadoCalculo"></div>
-    <div id="mensagemErroValores"></div>
-
-    <h2>Defina a Reação</h2>
-    <select id="tipoReacao">
-      <option value="">-- Escolha o tipo de reação --</option>
-      <option value="exotermica">Exotérmica</option>
-      <option value="endotermica">Endotérmica</option>
-    </select>
-    <button onclick="verificarTipo()">Verificar</button>
-    <div class="resultado-final" id="mensagemTipo"></div>
   </div>
 
+  <div class="container" role="main" id="main-content">
+
+    <!-- Header -->
+    <header class="header">
+      <p class="header-eyebrow" aria-hidden="true">Química · IUPAC / NIST · 298 K</p>
+      <h1>Simulador de Termoquímica</h1>
+      <p>Visualize diagramas de entalpia, calcule ΔH e classifique reações. Dados baseados em valores padrão IUPAC / NIST (298,15 K, 100 kPa).</p>
+    </header>
+
+    <!-- Seção 1: Selecionar reação -->
+    <section class="section" aria-labelledby="sec1-title">
+      <h2 class="section-title" id="sec1-title">
+        <span class="section-number" aria-hidden="true">1</span>
+        Selecionar reação
+      </h2>
+
+      <div class="category-chips" role="group" aria-label="Filtrar reações por categoria">
+        <button class="chip active" data-cat="todas"        aria-pressed="true">Todas</button>
+        <button class="chip"        data-cat="combustao"    aria-pressed="false">Combustão</button>
+        <button class="chip"        data-cat="sintese"      aria-pressed="false">Síntese</button>
+        <button class="chip"        data-cat="neutralizacao" aria-pressed="false">Neutralização</button>
+        <button class="chip"        data-cat="decomposicao" aria-pressed="false">Decomposição</button>
+        <button class="chip"        data-cat="outros"       aria-pressed="false">Outros</button>
+      </div>
+
+      <label for="reactionSelect">Reação química</label>
+      <select id="reactionSelect">
+        <option value="">— Selecione uma reação —</option>
+      </select>
+      <button class="btn btn-primary btn-full" id="btnGerarGrafico" onclick="gerarGrafico()"
+              aria-label="Gerar diagrama de entalpia para a reação selecionada">
+        ⬡ Gerar diagrama de entalpia
+      </button>
+    </section>
+
+    <!-- Seção 2: Gráfico -->
+    <section class="section" aria-labelledby="sec2-title">
+      <h2 class="section-title" id="sec2-title">
+        <span class="section-number" aria-hidden="true">2</span>
+        Diagrama de entalpia
+      </h2>
+
+      <div id="reacaoTexto" aria-label="Equação química"></div>
+
+      <div class="chart-wrapper" role="img" aria-labelledby="chartLabel" aria-describedby="chartDesc">
+        <p class="chart-title" id="chartLabel">Coordenada de reação × Entalpia (H)</p>
+        <canvas id="grafico" aria-hidden="true"></canvas>
+        <p class="chart-description" id="chartDesc" aria-live="polite" style="display:none"></p>
+      </div>
+    </section>
+
+    <!-- Seção 3: Calcular ΔH -->
+    <section class="section" aria-labelledby="sec3-title">
+      <h2 class="section-title" id="sec3-title">
+        <span class="section-number" aria-hidden="true">3</span>
+        Calcular ΔH
+      </h2>
+
+      <p class="formula-hint" role="note">ΔH°rxn = Σ ΔH°f (produtos) − Σ ΔH°f (reagentes)</p>
+
+      <div class="dh-grid">
+        <div>
+          <label for="hProdutos">Σ ΔH°f produtos (kJ/mol)</label>
+          <input type="number" id="hProdutos" placeholder="ex: −393,5" step="0.1" />
+        </div>
+        <div class="dh-operator" aria-hidden="true">−</div>
+        <div>
+          <label for="hReagentes">Σ ΔH°f reagentes (kJ/mol)</label>
+          <input type="number" id="hReagentes" placeholder="ex: −74,87" step="0.1" />
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full" onclick="calcularDeltaH()"
+              aria-label="Calcular variação de entalpia ΔH">
+        Calcular ΔH
+      </button>
+
+      <div class="result-box" id="resultadoCalculo"    role="alert" aria-live="assertive"></div>
+      <div class="result-box" id="mensagemErroValores" role="alert" aria-live="assertive"></div>
+    </section>
+
+    <!-- Seção 4: Classificar -->
+    <section class="section" aria-labelledby="sec4-title">
+      <h2 class="section-title" id="sec4-title">
+        <span class="section-number" aria-hidden="true">4</span>
+        Classificar a reação
+      </h2>
+
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+        Após calcular ΔH, classifique a reação e verifique sua resposta.
+      </p>
+
+      <div class="verify-grid">
+        <div>
+          <label for="tipoReacao">Classificação</label>
+          <select id="tipoReacao">
+            <option value="">— Escolha —</option>
+            <option value="exotermica">Exotérmica (ΔH &lt; 0, libera calor)</option>
+            <option value="endotermica">Endotérmica (ΔH &gt; 0, absorve calor)</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button class="btn btn-secondary btn-full" onclick="verificarTipo()"
+                  aria-label="Verificar classificação da reação">
+            Verificar resposta
+          </button>
+        </div>
+      </div>
+
+      <div class="result-box" id="mensagemTipo" role="alert" aria-live="assertive"></div>
+
+      <p class="source-note">
+        <strong>Fontes:</strong> NIST WebBook (webbook.nist.gov); IUPAC <em>Green Book</em> 3ª ed. (2007);
+        Atkins &amp; de Paula, <em>Physical Chemistry</em> 11ª ed.; Zumdahl, <em>Chemical Principles</em> 8ª ed.
+        Condições padrão: 298,15 K, 100 kPa (IUPAC desde 1982).
+      </p>
+    </section>
+
+  </div><!-- /container -->
+
   <script>
-    const dadosReacoes = {
-      "CH4 + 2 O2 -> CO2 + 2 H2O": { inicial: -74.8, deltaH: -890 },
-      "2 H2 + O2 -> 2 H2O": { inicial: 0, deltaH: -572 },
-      "N2 + 3 H2 -> 2 NH3": { inicial: 0, deltaH: -92 },
-      "CaCO3 -> CaO + CO2": { inicial: -1206.9, deltaH: 178 },
-      "C + O2 -> CO2": { inicial: 0, deltaH: -393.5 },
-      "H2O (l) -> H2O (g)": { inicial: -285.8, deltaH: 44.0 },
-      "2 NH3 -> N2 + 3 H2": { inicial: -92, deltaH: 92 },
-      "H2O2 -> H2O + 1/2 O2": { inicial: -187.8, deltaH: -98 },
-      "Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O": { inicial: -1003, deltaH: -118 },
-      "N2 + O2 -> 2 NO": { inicial: 0, deltaH: 180.5 },
-      "C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O": { inicial: -1273, deltaH: -2800 },
-      "CO2 + H2O -> H2CO3": { inicial: -677, deltaH: 20.1 },
-      "2 CO + O2 -> 2 CO2": { inicial: -221, deltaH: -566 },
-      "2 SO2 + O2 -> 2 SO3": { inicial: -593, deltaH: -198 },
-      "H2 + Cl2 -> 2 HCl": { inicial: 0, deltaH: -184 },
-      "CaO + H2O -> Ca(OH)2": { inicial: -635, deltaH: -65 },
-      "NH3 + HCl -> NH4Cl": { inicial: -46, deltaH: -176 },
-      "NaOH + HCl -> NaCl + H2O": { inicial: -469, deltaH: -57 },
-      "KOH + HCl -> KCl + H2O": { inicial: -482, deltaH: -57 },
-      "2 NO + O2 -> 2 NO2": { inicial: 180.5, deltaH: -114 },
-      "N2O4 -> 2 NO2": { inicial: 9.2, deltaH: 57 },
-      "C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O": { inicial: -84, deltaH: -1560 },
-      "C3H8 + 5 O2 -> 3 CO2 + 4 H2O": { inicial: -104.7, deltaH: -2220 },
-      "2 Al + Fe2O3 -> Al2O3 + 2 Fe": { inicial: -824, deltaH: -851 },
-      "Na2CO3 + 2 HCl -> 2 NaCl + H2O + CO2": { inicial: -1131, deltaH: -28 },
-      "H2SO4 + 2 NaOH -> Na2SO4 + 2 H2O": { inicial: -909, deltaH: -114 },
-      "CaO + CO2 -> CaCO3": { inicial: -635, deltaH: -178 },
-      
-    };
+  /* ══════════════════════════════════════════
+     BANCO DE DADOS – ΔH°₂₉₈ (IUPAC / NIST)
+  ══════════════════════════════════════════ */
+  const dadosReacoes = {
+    /* ── COMBUSTÃO ── */
+    "CH₄(g) + 2 O₂(g) → CO₂(g) + 2 H₂O(l)": {
+      inicial: -74.87, deltaH: -890.3,
+      nome: "Combustão completa do metano",
+      categoria: "combustao",
+      fonte: "NIST WebBook; ΔH°f CH₄ = −74,87 kJ/mol"
+    },
+    "2 H₂(g) + O₂(g) → 2 H₂O(l)": {
+      inicial: 0, deltaH: -571.6,
+      nome: "Combustão do hidrogênio",
+      categoria: "combustao",
+      fonte: "NIST; ΔH°f H₂O(l) = −285,83 kJ/mol"
+    },
+    "C(grafite) + O₂(g) → CO₂(g)": {
+      inicial: 0, deltaH: -393.51,
+      nome: "Combustão do carbono (grafite)",
+      categoria: "combustao",
+      fonte: "NIST; valor primário de referência"
+    },
+    "C₂H₅OH(l) + 3 O₂(g) → 2 CO₂(g) + 3 H₂O(l)": {
+      inicial: -277.69, deltaH: -1366.8,
+      nome: "Combustão do etanol",
+      categoria: "combustao",
+      fonte: "NIST; ΔH°f etanol(l) = −277,69 kJ/mol"
+    },
+    "C₆H₁₂O₆(s) + 6 O₂(g) → 6 CO₂(g) + 6 H₂O(l)": {
+      inicial: -1273.3, deltaH: -2802.7,
+      nome: "Combustão da glicose (respiração celular)",
+      categoria: "combustao",
+      fonte: "NIST; ΔH°f glicose(s) = −1273,3 kJ/mol"
+    },
+    "C₃H₈(g) + 5 O₂(g) → 3 CO₂(g) + 4 H₂O(l)": {
+      inicial: -103.85, deltaH: -2219.9,
+      nome: "Combustão do propano (GLP)",
+      categoria: "combustao",
+      fonte: "NIST; ΔH°f C₃H₈ = −103,85 kJ/mol"
+    },
+    "C₂H₆(g) + 7/2 O₂(g) → 2 CO₂(g) + 3 H₂O(l)": {
+      inicial: -83.82, deltaH: -1559.7,
+      nome: "Combustão do etano",
+      categoria: "combustao",
+      fonte: "NIST; ΔH°f C₂H₆ = −83,82 kJ/mol"
+    },
+    "2 CO(g) + O₂(g) → 2 CO₂(g)": {
+      inicial: -221.0, deltaH: -565.98,
+      nome: "Oxidação do monóxido de carbono",
+      categoria: "combustao",
+      fonte: "NIST; ΔH°f CO(g) = −110,53 kJ/mol"
+    },
+    /* ── SÍNTESE ── */
+    "N₂(g) + 3 H₂(g) → 2 NH₃(g)": {
+      inicial: 0, deltaH: -91.8,
+      nome: "Síntese da amônia (Haber-Bosch)",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f NH₃ = −45,90 kJ/mol"
+    },
+    "H₂(g) + Cl₂(g) → 2 HCl(g)": {
+      inicial: 0, deltaH: -184.6,
+      nome: "Síntese do cloreto de hidrogênio",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f HCl(g) = −92,31 kJ/mol"
+    },
+    "SO₂(g) + ½ O₂(g) → SO₃(g)": {
+      inicial: -296.83, deltaH: -98.9,
+      nome: "Oxidação do SO₂ (processo do contato)",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f SO₃ = −395,72 kJ/mol"
+    },
+    "N₂(g) + O₂(g) → 2 NO(g)": {
+      inicial: 0, deltaH: 180.5,
+      nome: "Formação do monóxido de nitrogênio",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f NO(g) = +90,25 kJ/mol"
+    },
+    "2 NO(g) + O₂(g) → 2 NO₂(g)": {
+      inicial: 180.5, deltaH: -114.14,
+      nome: "Oxidação do NO a NO₂ (chuva ácida)",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f NO₂ = +33,18 kJ/mol"
+    },
+    "CaO(s) + CO₂(g) → CaCO₃(s)": {
+      inicial: -635.09, deltaH: -178.3,
+      nome: "Formação do carbonato de cálcio",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f CaCO₃(calcita) = −1207,6 kJ/mol"
+    },
+    "CaO(s) + H₂O(l) → Ca(OH)₂(s)": {
+      inicial: -635.09, deltaH: -65.2,
+      nome: "Hidratação do óxido de cálcio (cal virgem)",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f Ca(OH)₂ = −986,09 kJ/mol"
+    },
+    "2 Al(s) + Fe₂O₃(s) → Al₂O₃(s) + 2 Fe(s)": {
+      inicial: -824.2, deltaH: -851.5,
+      nome: "Reação termita (aluminotermia)",
+      categoria: "sintese",
+      fonte: "NIST; ΔH°f Al₂O₃ = −1675,7 kJ/mol"
+    },
+    /* ── DECOMPOSIÇÃO ── */
+    "CaCO₃(s) → CaO(s) + CO₂(g)": {
+      inicial: -1207.6, deltaH: 178.3,
+      nome: "Decomposição do carbonato de cálcio (calcinação)",
+      categoria: "decomposicao",
+      fonte: "NIST; inversa da formação do CaCO₃"
+    },
+    "2 H₂O(l) → 2 H₂(g) + O₂(g)": {
+      inicial: -571.6, deltaH: 571.6,
+      nome: "Eletrólise da água",
+      categoria: "decomposicao",
+      fonte: "NIST; inversa da combustão do H₂"
+    },
+    "2 NH₃(g) → N₂(g) + 3 H₂(g)": {
+      inicial: -91.8, deltaH: 91.8,
+      nome: "Decomposição da amônia",
+      categoria: "decomposicao",
+      fonte: "NIST; inversa de Haber-Bosch"
+    },
+    "2 H₂O₂(l) → 2 H₂O(l) + O₂(g)": {
+      inicial: -376.0, deltaH: -196.0,
+      nome: "Decomposição da água oxigenada (catalítica)",
+      categoria: "decomposicao",
+      fonte: "NIST; ΔH°f H₂O₂(l) = −187,78 kJ/mol"
+    },
+    "N₂O₄(g) → 2 NO₂(g)": {
+      inicial: 9.16, deltaH: 57.2,
+      nome: "Dissociação do tetróxido de dinitrogênio",
+      categoria: "decomposicao",
+      fonte: "NIST; ΔH°f N₂O₄ = +9,16 kJ/mol"
+    },
+    /* ── NEUTRALIZAÇÃO ── */
+    "NaOH(aq) + HCl(aq) → NaCl(aq) + H₂O(l)": {
+      inicial: -469.15, deltaH: -57.3,
+      nome: "Neutralização NaOH + HCl (fortes)",
+      categoria: "neutralizacao",
+      fonte: "NIST; ΔH neutr. forte/forte = −57,3 kJ/mol"
+    },
+    "KOH(aq) + HCl(aq) → KCl(aq) + H₂O(l)": {
+      inicial: -482.37, deltaH: -57.3,
+      nome: "Neutralização KOH + HCl",
+      categoria: "neutralizacao",
+      fonte: "NIST; mesmo valor de neutr. forte/forte"
+    },
+    "H₂SO₄(aq) + 2 NaOH(aq) → Na₂SO₄(aq) + 2 H₂O(l)": {
+      inicial: -907.51, deltaH: -114.6,
+      nome: "Neutralização H₂SO₄ + NaOH",
+      categoria: "neutralizacao",
+      fonte: "NIST; 2 × ΔH neutr. forte/forte"
+    },
+    "Ba(OH)₂(aq) + 2 HCl(aq) → BaCl₂(aq) + 2 H₂O(l)": {
+      inicial: -944.7, deltaH: -114.6,
+      nome: "Neutralização Ba(OH)₂ + HCl",
+      categoria: "neutralizacao",
+      fonte: "NIST; 2 × ΔH neutr."
+    },
+    "NH₃(g) + HCl(g) → NH₄Cl(s)": {
+      inicial: -137.81, deltaH: -176.0,
+      nome: "Formação do cloreto de amônio",
+      categoria: "neutralizacao",
+      fonte: "NIST; ΔH°f NH₄Cl(s) = −314,43 kJ/mol"
+    },
+    /* ── OUTROS ── */
+    "H₂O(l) → H₂O(g)": {
+      inicial: -285.83, deltaH: 44.0,
+      nome: "Vaporização da água (ΔH°vap, 298 K)",
+      categoria: "outros",
+      fonte: "NIST; ΔH°vap 298 K = 44,01 kJ/mol"
+    },
+    "H₂O(s) → H₂O(l)": {
+      inicial: -292.02, deltaH: 6.01,
+      nome: "Fusão do gelo (0 °C)",
+      categoria: "outros",
+      fonte: "NIST; ΔH°fus = 6,01 kJ/mol"
+    },
+    "CO₂(g) + H₂O(l) → H₂CO₃(aq)": {
+      inicial: -677.0, deltaH: -17.0,
+      nome: "Formação do ácido carbônico",
+      categoria: "outros",
+      fonte: "NIST / Plummer & Busenberg 1982"
+    },
+  };
 
-    const nomesReacoes = {
-      "CH4 + 2 O2 -> CO2 + 2 H2O": "Combustão do Metano",
-      "2 H2 + O2 -> 2 H2O": "Combustão do Hidrogênio",
-      "N2 + 3 H2 -> 2 NH3": "Síntese da Amônia",
-      "CaCO3 -> CaO + CO2": "Decomposição do Carbonato de Cálcio",
-      "C + O2 -> CO2": "Combustão do Carbono",
-      "H2O (l) -> H2O (g)": "Vaporização da Água",
-      "2 NH3 -> N2 + 3 H2": "Decomposição da Amônia",
-      "H2O2 -> H2O + 1/2 O2": "Decomposição da Água Oxigenada",
-      "Ba(OH)2 + 2 HCl -> BaCl2 + 2 H2O": "Neutralização",
-      "N2 + O2 -> 2 NO": "Formação de Monóxido de Nitrogênio",
-      "C6H12O6 + 6 O2 -> 6 CO2 + 6 H2O": "Combustão da Glicose",
-      "CO2 + H2O -> H2CO3": "Formação do Ácido Carbônico",
-      "2 CO + O2 -> 2 CO2": "Oxidação do Monóxido de Carbono",
-      "2 SO2 + O2 -> 2 SO3": "Oxidação do Dióxido de Enxofre",
-      "H2 + Cl2 -> 2 HCl": "Síntese do Ácido Clorídrico",
-      "CaO + H2O -> Ca(OH)2": "Hidratação do Óxido de Cálcio",
-      "NH3 + HCl -> NH4Cl": "Formação do Cloreto de Amônio",
-      "NaOH + HCl -> NaCl + H2O": "Neutralização Ácido-Base",
-      "KOH + HCl -> KCl + H2O": "Neutralização Ácido-Base",
-      "2 NO + O2 -> 2 NO2": "Oxidação do Monóxido de Nitrogênio",
-      "N2O4 -> 2 NO2": "Dissociação do Tetróxido de Dinitrogênio",
-      "2 H2O2 -> 2 H2O + O2": "Decomposição Catalítica da Água Oxigenada",
-      "C2H6 + 7/2 O2 -> 2 CO2 + 3 H2O": "Combustão do Etano",
-      "C3H8 + 5 O2 -> 3 CO2 + 4 H2O": "Combustão do Propano",
-      "CO + 1/2 O2 -> CO2": "Oxidação do Monóxido de Carbono",
-      "2 Al + Fe2O3 -> Al2O3 + 2 Fe": "Reação Termita",
-      "Na2CO3 + 2 HCl -> 2 NaCl + H2O + CO2": "Reação de Carbonato com Ácido",
-      "H2SO4 + 2 NaOH -> Na2SO4 + 2 H2O": "Neutralização do Ácido Sulfúrico",
-      "CaO + CO2 -> CaCO3": "Formação do Carbonato de Cálcio",
-    };
+  const categoriaLabel = {
+    combustao:"Combustão", sintese:"Síntese",
+    neutralizacao:"Neutralização", decomposicao:"Decomposição", outros:"Outros"
+  };
 
-    const selectReacoes = document.getElementById("reactionSelect");
-    for (const reacao in dadosReacoes) {
-      const nome = nomesReacoes[reacao] ?? reacao;
-      const opcao = document.createElement("option");
-      opcao.value = reacao;
-      opcao.textContent = nome;
-      selectReacoes.appendChild(opcao);
+  let ultimaReacao = null;
+  let ultimoDeltaH = null;
+
+  /* ── Helpers de cor (respeitam tema atual) ── */
+  function getThemeVar(v) {
+    return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  }
+
+  /* ── Preencher select ── */
+  function preencherSelect(filtro = "todas") {
+    const sel = document.getElementById("reactionSelect");
+    const anterior = sel.value;
+    sel.innerHTML = '<option value="">— Selecione uma reação —</option>';
+    for (const eq in dadosReacoes) {
+      const d = dadosReacoes[eq];
+      if (filtro !== "todas" && d.categoria !== filtro) continue;
+      const opt = document.createElement("option");
+      opt.value = eq;
+      opt.textContent = d.nome;
+      sel.appendChild(opt);
     }
+    if ([...sel.options].some(o => o.value === anterior)) sel.value = anterior;
 
-    let ultimaReacao = null;
+  }
+  preencherSelect();
 
-    function gerarGrafico() {
-      const select = document.getElementById("reactionSelect");
-      const valor = select.value;
-      if (!valor) return alert("Selecione uma reação.");
-      ultimaReacao = valor;
+  /* ── Chips ── */
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach(c => { c.classList.remove("active"); c.setAttribute("aria-pressed","false"); });
+      chip.classList.add("active");
+      chip.setAttribute("aria-pressed","true");
+      preencherSelect(chip.dataset.cat);
+    });
+    chip.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" "){e.preventDefault();chip.click();} });
+  });
 
-      const ctx = document.getElementById("grafico").getContext("2d");
-      const dados = dadosReacoes[valor];
+  /* ── Meta ao mudar select ── */
 
-      const energiaInicial = dados.inicial;
-      const energiaFinal = dados.inicial + dados.deltaH;
+  /* ═══ GERAR GRÁFICO ═══ */
+  function gerarGrafico() {
+    const eq = document.getElementById("reactionSelect").value;
+    if (!eq) { anunciar("Selecione uma reação antes de gerar o gráfico."); alert("Selecione uma reação."); return; }
+    ultimaReacao = eq;
+    const dados = dadosReacoes[eq];
+    const eI = dados.inicial;
+    const eF = dados.inicial + dados.deltaH;
+    const isExo = dados.deltaH < 0;
 
-      const labels = ["", "", "", ""];
-      const data = [energiaInicial, energiaInicial, energiaFinal, energiaFinal];
+    const corLinha = isExo ? getThemeVar("--c-liquid") : getThemeVar("--c-solid");
+    const corTexto = getThemeVar("--text-main");
+    const corDim   = getThemeVar("--text-dim");
+    const corGrid  = getThemeVar("--border");
+    const corBg    = getThemeVar("--bg-card");
 
-      document.getElementById("reacaoTexto").innerHTML = `
-        <strong>${valor.replace("->", "&rarr;")}</strong>
-      `;
+    const textoDiv = document.getElementById("reacaoTexto");
+    textoDiv.textContent = eq;
+    textoDiv.classList.add("visible");
 
-      if (window.graficoInstance) window.graficoInstance.destroy();
+    if (window.graficoInstance) window.graficoInstance.destroy();
+    const ctx = document.getElementById("grafico").getContext("2d");
 
-      window.graficoInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [{
-            label: "Energia (kJ/mol)",
-            data: data,
-            fill: false,
-            borderColor: "#e74c3c",
-            backgroundColor: "#e74c3c",
-            tension: 0,
-            borderWidth: 2.5,
-            pointRadius: 0,
-          }],
-        },
-        options: {
-          animation: {
-            duration: 1000,
-            easing: "easeOutQuart",
-          },
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return context.parsed.y + " kJ/mol";
-                }
-              }
-            },
-            datalabels: {
-              display: function(context) {
-                return context.dataIndex === 0 || context.dataIndex === 3;
-              },
-              anchor: "end",
-             align: function(context) {
-  const valor = context.dataset.data[context.dataIndex];
-  return valor < 0 ? "bottom" : "top";
-},
-              formatter: (val) => val + " kJ/mol",
-              font: {
-                weight: "bold",
-                size: 12
-              },
-              color: "#2c3e50"
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              title: {
-                display: true,
-                text: "ΔH",
-                font: { size: 16 }
-              }
-            },
-            x: {
-              title: {
-                display: true,
-                text: "Caminho da reação",
-                font: { size: 16 }
-              },
-              ticks: {
-                callback: function(_, index) {
-                  if (index === 0) return "Reagentes";
-                  if (index === 3) return "Produtos";
-                  return "";
-                }
-              }
-            }
+    window.graficoInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: ["", "Reagentes", "Produtos", ""],
+        datasets: [{
+          label: "Entalpia (kJ/mol)",
+          data: [eI, eI, eF, eF],
+          fill: false,
+          borderColor: corLinha,
+          backgroundColor: corLinha,
+          tension: 0,
+          borderWidth: 3,
+          pointRadius: [0, 6, 6, 0],
+          pointBackgroundColor: corLinha,
+          pointBorderColor: corBg,
+          pointBorderWidth: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 700, easing: "easeOutQuart" },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => `${c.parsed.y.toFixed(2)} kJ/mol` } },
+          datalabels: {
+            display: c => c.dataIndex === 1 || c.dataIndex === 2,
+            anchor: c => c.dataIndex === 1 ? (isExo?"end":"start") : (isExo?"start":"end"),
+            align:  c => c.dataIndex === 1 ? (isExo?"top":"bottom") : (isExo?"bottom":"top"),
+            formatter: v => v.toFixed(2) + " kJ/mol",
+            font: { weight:"bold", size:11, family:"'DM Mono', monospace" },
+            color: corTexto,
+            backgroundColor: corBg + "ee",
+            borderRadius: 4,
+            padding: { top:3, bottom:3, left:6, right:6 }
           }
         },
-        plugins: [ChartDataLabels],
-      });
+        scales: {
+          y: {
+            title: { display:true, text:"Entalpia H (kJ/mol)", font:{size:12,family:"'DM Sans',sans-serif",weight:"500"}, color:corDim },
+            grid: { color: corGrid },
+            ticks: { color:corDim, font:{family:"'DM Mono',monospace",size:11} }
+          },
+          x: {
+            title: { display:true, text:"Coordenada de reação →", font:{size:12,family:"'DM Sans',sans-serif",weight:"500"}, color:corDim },
+            grid: { display:false },
+            ticks: { color:corDim, font:{family:"'DM Sans',sans-serif",size:12} }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+
+    const tipo = isExo ? "exotérmica (libera energia)" : "endotérmica (absorve energia)";
+    const desc = `Diagrama de entalpia: ${dados.nome}. Reagentes: ${eI.toFixed(2)} kJ/mol. Produtos: ${eF.toFixed(2)} kJ/mol. ΔH° = ${dados.deltaH} kJ/mol. Reação ${tipo}.`;
+    document.getElementById("chartDesc").textContent = desc;
+    anunciar("Gráfico gerado. " + desc);
+  }
+
+  /* ═══ CALCULAR ΔH ═══ */
+  function calcularDeltaH() {
+    const hP = parseFloat(document.getElementById("hProdutos").value);
+    const hR = parseFloat(document.getElementById("hReagentes").value);
+    const resBox = document.getElementById("resultadoCalculo");
+    const errBox = document.getElementById("mensagemErroValores");
+    resBox.className = "result-box"; errBox.className = "result-box";
+
+    if (isNaN(hP) || isNaN(hR)) {
+      resBox.innerHTML = `<span class="result-icon" aria-hidden="true">⚠️</span><span class="result-text">Insira valores numéricos válidos nos dois campos.</span>`;
+      resBox.classList.add("visible","error"); anunciar("Insira valores numéricos válidos."); return;
     }
+    const dH = parseFloat((hP - hR).toFixed(2));
+    ultimoDeltaH = dH;
+    const tipo = dH<0?"exotérmica":dH>0?"endotérmica":"atermal (ΔH = 0)";
+    resBox.innerHTML = `<span class="result-icon" aria-hidden="true">${dH<0?"🔥":"❄️"}</span><span class="result-text">ΔH = <strong>${dH>0?"+":""}${dH} kJ/mol</strong> — Reação <strong>${tipo}</strong></span>`;
+    resBox.classList.add("visible","info");
 
-    function calcularDeltaH() {
-      const hProd = parseFloat(document.getElementById("hProdutos").value);
-      const hReag = parseFloat(document.getElementById("hReagentes").value);
-      if (isNaN(hProd) || isNaN(hReag)) {
-        alert("Por favor, insira valores válidos.");
-        return;
-      }
-
-      const deltaH = hProd - hReag;
-      document.getElementById("resultadoCalculo").textContent = `ΔH = ${deltaH} kJ/mol`;
-
-      const dados = dadosReacoes[ultimaReacao];
-      const erro = Math.abs(deltaH - dados.deltaH);
-
-      document.getElementById("mensagemErroValores").textContent =
-        erro > 5 ? "Os valores inseridos estão incorretos com base no gráfico." : "";
-
-      document.getElementById("reacaoTexto").innerHTML = `
-        <strong>${ultimaReacao.replace("->", "&rarr;")}</strong>
-        <span style="margin-left: 10px; color: #555;">ΔH = ${deltaH} kJ/mol</span>
-      `;
-    }
-
-    function verificarTipo() {
-      const tipoSelecionado = document.getElementById("tipoReacao").value;
-      const deltaHText = document.getElementById("resultadoCalculo").textContent;
-      const deltaH = parseFloat(deltaHText.split("=")[1]);
-
-      let mensagem = "";
-      if ((deltaH < 0 && tipoSelecionado === "exotermica") ||
-          (deltaH > 0 && tipoSelecionado === "endotermica")) {
-        mensagem = `Correto. A reação é ${tipoSelecionado}, pois ΔH é ${
-          deltaH > 0 ? "positivo (absorve energia)" : "negativo (libera energia)"}.`;
+    if (ultimaReacao) {
+      const ref = dadosReacoes[ultimaReacao].deltaH;
+      const err = Math.abs(dH - ref);
+      if (err > 5) {
+        errBox.innerHTML = `<span class="result-icon" aria-hidden="true">⚠️</span><span class="result-text">Atenção: valor calculado (${dH}) difere do referencial NIST (${ref} kJ/mol) em ${err.toFixed(1)} kJ/mol. Verifique os dados inseridos.</span>`;
+        errBox.classList.add("visible","error");
       } else {
-        mensagem = "Análise incorreta. Revise os dados.";
+        errBox.innerHTML = `<span class="result-icon" aria-hidden="true">✅</span><span class="result-text">Consistente com o referencial NIST: ${ref} kJ/mol.</span>`;
+        errBox.classList.add("visible","success");
       }
-
-      document.getElementById("mensagemTipo").textContent = mensagem;
     }
+    anunciar(`ΔH calculado: ${dH>0?"+":""}${dH} kJ/mol. Reação ${tipo}.`);
+  }
+
+  /* ═══ VERIFICAR TIPO ═══ */
+  function verificarTipo() {
+    const tipo = document.getElementById("tipoReacao").value;
+    const msgBox = document.getElementById("mensagemTipo");
+    msgBox.className = "result-box";
+    if (!tipo) {
+      msgBox.innerHTML=`<span class="result-icon" aria-hidden="true">⚠️</span><span class="result-text">Selecione uma classificação antes de verificar.</span>`;
+      msgBox.classList.add("visible","error"); anunciar("Selecione uma classificação."); return;
+    }
+    if (ultimoDeltaH === null) {
+      msgBox.innerHTML=`<span class="result-icon" aria-hidden="true">⚠️</span><span class="result-text">Calcule o ΔH primeiro (seção 3).</span>`;
+      msgBox.classList.add("visible","error"); anunciar("Calcule o ΔH primeiro."); return;
+    }
+    const correto = (ultimoDeltaH<0&&tipo==="exotermica")||(ultimoDeltaH>0&&tipo==="endotermica");
+    if (correto) {
+      const motivo = ultimoDeltaH<0?"ΔH < 0: o sistema libera energia para a vizinhança.":"ΔH > 0: o sistema absorve energia da vizinhança.";
+      msgBox.innerHTML=`<span class="result-icon" aria-hidden="true">✅</span><span class="result-text">Correto! A reação é <strong>${tipo==="exotermica"?"exotérmica":"endotérmica"}</strong>. ${motivo}</span>`;
+      msgBox.classList.add("visible","success"); anunciar(`Correto! ${motivo}`);
+    } else {
+      const esp = ultimoDeltaH<0?"exotérmica (ΔH < 0)":"endotérmica (ΔH > 0)";
+      msgBox.innerHTML=`<span class="result-icon" aria-hidden="true">❌</span><span class="result-text">Incorreto. Para ΔH = ${ultimoDeltaH>0?"+":""}${ultimoDeltaH} kJ/mol, a reação é <strong>${esp}</strong>. Revise os critérios.</span>`;
+      msgBox.classList.add("visible","error"); anunciar(`Incorreto. A reação é ${esp}.`);
+    }
+  }
+
+  /* ═══ ACESSIBILIDADE ═══ */
+  function anunciar(msg) {
+    const r = document.getElementById("liveRegion");
+    r.textContent = "";
+    requestAnimationFrame(() => { r.textContent = msg; });
+  }
+
+  /* ── Tamanho de fonte ── */
+  let fontScale = 100;
+  document.getElementById("btnFontIncrease").addEventListener("click", () => {
+    if (fontScale >= 140) return;
+    fontScale += 10;
+    document.documentElement.style.fontSize = fontScale + "%";
+    document.getElementById("fontSizeLabel").textContent = fontScale + "%";
+    anunciar(`Tamanho da fonte: ${fontScale}%`);
+  });
+  document.getElementById("btnFontDecrease").addEventListener("click", () => {
+    if (fontScale <= 80) return;
+    fontScale -= 10;
+    document.documentElement.style.fontSize = fontScale + "%";
+    document.getElementById("fontSizeLabel").textContent = fontScale + "%";
+    anunciar(`Tamanho da fonte: ${fontScale}%`);
+  });
+
+  /* ── Theme switcher ── */
+  document.querySelectorAll("[data-theme-btn]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tema = btn.dataset.themeBtn;
+      document.documentElement.setAttribute("data-theme", tema);
+      document.querySelectorAll("[data-theme-btn]").forEach(b => {
+        b.classList.remove("active");
+        b.setAttribute("aria-pressed","false");
+      });
+      btn.classList.add("active");
+      btn.setAttribute("aria-pressed","true");
+      // Regen chart colors if chart exists
+      if (window.graficoInstance && ultimaReacao) gerarGrafico();
+      const nomes = {dark:"Tema escuro", light:"Tema claro", "high-contrast":"Alto contraste"};
+      anunciar(nomes[tema] + " ativado.");
+    });
+  });
+
+  /* ── Enter no select ── */
+  document.getElementById("reactionSelect").addEventListener("keydown", e => {
+    if (e.key === "Enter") gerarGrafico();
+  });
   </script>
 </body>
 </html>
