@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Simulador de Termoquímica</title>
-  <meta name="description" content="Simulador interativo de reações termoquímicas com dados IUPAC/NIST, gráficos de entalpia e cálculo de ΔH." />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -979,8 +978,12 @@
           tooltip: { callbacks: { label: c => `${c.parsed.y.toFixed(2)} kJ/mol` } },
           datalabels: {
             display: c => c.dataIndex === 1 || c.dataIndex === 2,
-            anchor: c => c.dataIndex === 1 ? (isExo?"end":"start") : (isExo?"start":"end"),
-            align:  c => c.dataIndex === 1 ? (isExo?"top":"bottom") : (isExo?"bottom":"top"),
+            anchor: "center",
+            align: c => {
+              // Reagentes (idx 1): label à direita; Produtos (idx 2): label à esquerda
+              return c.dataIndex === 1 ? "right" : "left";
+            },
+            offset: 8,
             formatter: v => v.toFixed(2) + " kJ/mol",
             font: { weight:"bold", size:11, family:"'DM Mono', monospace" },
             color: corTexto,
@@ -1020,23 +1023,20 @@
     resBox.className = "result-box"; errBox.className = "result-box";
 
     if (isNaN(hP) || isNaN(hR)) {
-      resBox.innerHTML = `<span class="result-icon" aria-hidden="true">⚠️</span><span class="result-text">Insira valores numéricos válidos nos dois campos.</span>`;
+      resBox.innerHTML = `<span class="result-icon" aria-hidden="true"></span><span class="result-text">Insira valores numéricos válidos nos dois campos.</span>`;
       resBox.classList.add("visible","error"); anunciar("Insira valores numéricos válidos."); return;
     }
     const dH = parseFloat((hP - hR).toFixed(2));
     ultimoDeltaH = dH;
-    const tipo = dH<0?"exotérmica":dH>0?"endotérmica":"atermal (ΔH = 0)";
-    resBox.innerHTML = `<span class="result-icon" aria-hidden="true">${dH<0?"🔥":"❄️"}</span><span class="result-text">ΔH = <strong>${dH>0?"+":""}${dH} kJ/mol</strong> — Reação <strong>${tipo}</strong></span>`;
-    resBox.classList.add("visible","info");
 
     if (ultimaReacao) {
       const ref = dadosReacoes[ultimaReacao].deltaH;
       const err = Math.abs(dH - ref);
       if (err > 5) {
-        errBox.innerHTML = `<span class="result-icon" aria-hidden="true">⚠️</span><span class="result-text">Atenção: valor calculado (${dH}) difere do referencial NIST (${ref} kJ/mol) em ${err.toFixed(1)} kJ/mol. Verifique os dados inseridos.</span>`;
+        errBox.innerHTML = `<span class="result-icon" aria-hidden="true"></span><span class="result-text">Atenção: valor calculado (${dH}) difere do referencial NIST (${ref} kJ/mol) em ${err.toFixed(1)} kJ/mol. Verifique os dados inseridos.</span>`;
         errBox.classList.add("visible","error");
       } else {
-        errBox.innerHTML = `<span class="result-icon" aria-hidden="true">✅</span><span class="result-text">Consistente com o referencial NIST: ${ref} kJ/mol.</span>`;
+        errBox.innerHTML = `<span class="result-icon" aria-hidden="true"></span><span class="result-text">Consistente com o referencial NIST: ${ref} kJ/mol.</span>`;
         errBox.classList.add("visible","success");
       }
     }
